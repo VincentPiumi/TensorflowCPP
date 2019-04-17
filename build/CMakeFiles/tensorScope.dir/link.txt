@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/tensorScope.dir/tensorScope.cpp.o  -o tensorScope -Wl,-rpath,/usr/local/lib/tensorflow_cc /usr/local/lib/tensorflow_cc/libtensorflow_cc.so -ldl -lpthread /usr/local/lib/tensorflow_cc/libprotobuf.a 
