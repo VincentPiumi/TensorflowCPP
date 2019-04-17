@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/convert.dir/convert.cpp.o  -o convert -Wl,-rpath,/usr/local/lib/tensorflow_cc /usr/local/lib/tensorflow_cc/libtensorflow_cc.so -ldl -lpthread /usr/local/lib/tensorflow_cc/libprotobuf.a 
