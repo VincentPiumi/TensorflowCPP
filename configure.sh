@@ -21,7 +21,7 @@ run_dpkg_check()
 	echo "[install] $1 found"
     else
 	echo "[install] $1"
-	sudo apt install $1
+	sudo apt -f install $1
 	RT=$?
 	run_return_check $1 INSTALL
     fi
@@ -128,28 +128,12 @@ run_main()
 {
     run_dependencies
     run_return_check DEPENDENCIES
-    while getopts ":tensorflow:bazel:cmake:all:" option; do
-	case "${option}" in
-	    tensorflow)
-		run_tensorflow_install
-		run_return_check TENSORFLOW install
-		;;
-	    bazel)
-		run_bazel_install
-		run_return_check BAZEL install
-		;;
-	    cmake)
-		run_cmake_install
-		run_return_check CMAKE install
-		;;
-	    all)
-		run_bazel_install
-		run_return_check BAZEL install
-		run_cmake_install
-		run_return_check CMAKE install
-		run_tensorflow_install
-		run_return_check TENSORFLOW install
-		;;
+    run_bazel_install
+    run_return_check BAZEL install
+    run_cmake_install
+    run_return_check CMAKE install
+    run_tensorflow_install
+    run_return_check TENSORFLOW install
 }
 
 run_main
