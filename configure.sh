@@ -1,0 +1,132 @@
+#!/bin/bash
+
+CURR_DIR=`pwd`
+DEPENDENCIES="curl cmake git unzip autoconf autogen automake libtool mlocate zlib1g-dev g++-7 python python3-numpy python3-dev python3-pip python3-wheel wget"
+BAZEL_SRC="bazel-0.21.0-installer-linux-x86_64.sh"
+CMAKE_DIR="cmake-3.13.4"
+RT=0
+
+run_return_check()
+{
+    if [ $RT -eq 1 ]; then
+	echo "$1 $2 command FAILED"
+	exit 1
+    fi
+}
+
+run_dpkg_check()
+{
+    if dpkg -s $1 > /dev/null 2>&1 ; then
+	echo "[install] $1 found"
+    else
+	echo "[install] $1"
+	sudo apt install $1
+	RT=$?
+	run_return_check $1 INSTALL
+    fi
+}
+
+run_bazel_install()
+{
+    if [ -f "$BAZEL_SRC" ]; then 
+	echo "[install] BAZEL"
+	bash $BAZEL_SRC --user
+	export PATH="$PATH:$HOME/bin"
+    else
+	RT=1
+    fi
+}
+
+run_cmake_install()
+{
+    if [ -d "$CMAKE_DIR" ]; then
+	echo "[install] CMAKE"
+	cd $CMAKE_DIR
+	./bootstrap
+	run_return_check CMAKE bootstrap
+	make
+	run_return_check CMAKE make
+	sudo make install
+	run_return_check CMAKE make_install
+	cd ..
+    else
+	RT=1
+    fi
+}
+
+run_tensorflow_install()
+{
+    echo "[install] TENSORFLOW (this may take a while..)"
+    
+    git clone https://github.com/FloopCZ/tensorflow_cc.git
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check TENSORFLOW git_clone
+
+    cd tensorflow_cc/tensorflow_cc/
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check TENSORFLOW git_clone
+
+    mkdir build && cd build
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check TENSORFLOW git_clone
+
+    cmake -DTENSORFLOW_STATIC=OFF -DTENSORFLOW_SHARED=ON .. 
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check TENSORFLOW git_clone
+
+    make && sudo make install
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check TENSORFLOW git_clone
+
+    cd ../../..
+}
+
+run_dependencies()
+{
+    for i in $DEPENDENCIES; do
+	run_dpkg_check $i
+    done;
+    sudo updatedb
+    RT=$?
+
+}
+
+run_main()
+{
+    run_dependencies
+    run_return_check DEPENDENCIES
+    while getopts ":tensorflow:bazel:cmake:all:" option; do
+	case "${option}" in
+	    tensorflow)
+		run_tensorflow_install
+		run_return_check TENSORFLOW install
+		;;
+	    bazel)
+		run_bazel_install
+		run_return_check BAZEL install
+		;;
+	    cmake)
+		run_cmake_install
+		run_return_check CMAKE install
+		;;
+	    all)
+		run_bazel_install
+		run_return_check BAZEL install
+		run_cmake_install
+		run_return_check CMAKE install
+		run_tensorflow_install
+		run_return_check TENSORFLOW install
+		;;
+}
+
+run_main
