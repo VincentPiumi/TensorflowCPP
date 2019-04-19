@@ -34,6 +34,11 @@ run_bazel_install()
 	RT=1
     fi
     run_return_check BAZEL download
+    chmod +x $BAZEL_SRC
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check BAZEL executable
     
     if [ -f "$BAZEL_SRC" ]; then 
 	echo "[install] BAZEL"
