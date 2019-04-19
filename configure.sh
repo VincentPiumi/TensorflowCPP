@@ -3,6 +3,7 @@
 CURR_DIR=`pwd`
 DEPENDENCIES="curl cmake git unzip autoconf autogen automake libtool mlocate zlib1g-dev g++-7 python python3-numpy python3-dev python3-pip python3-wheel wget"
 BAZEL_SRC="bazel-0.21.0-installer-linux-x86_64.sh"
+CMAKE_TAR="cmake-3.13.4.tar.gz"
 CMAKE_DIR="cmake-3.13.4"
 RT=0
 
@@ -28,6 +29,12 @@ run_dpkg_check()
 
 run_bazel_install()
 {
+    wget https://github.com/bazelbuild/bazel/releases/download/0.21.0/bazel-0.21.0-installer-linux-x86_64.sh
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check BAZEL download
+    
     if [ -f "$BAZEL_SRC" ]; then 
 	echo "[install] BAZEL"
 	bash $BAZEL_SRC --user
@@ -39,6 +46,17 @@ run_bazel_install()
 
 run_cmake_install()
 {
+    wget https://github.com/Kitware/CMake/releases/download/v3.13.4/cmake-3.13.4.tar.gz
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check CMAKE download
+    tar xzvf $CMAKE_TAR
+    if [ $? -eq 1 ]; then
+	RT=1
+    fi
+    run_return_check CMAKE extraction
+
     if [ -d "$CMAKE_DIR" ]; then
 	echo "[install] CMAKE"
 	cd $CMAKE_DIR
