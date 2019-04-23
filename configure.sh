@@ -23,7 +23,7 @@ run_dpkg_check()
 	echo "[install] $1"
 	sudo apt -f install $1
 	RT=$?
-	run_return_check $1 INSTALL
+	run_return_check $1 install
     fi
 }
 
@@ -124,16 +124,32 @@ run_dependencies()
 
 }
 
+run_bazel_check()
+{
+    BAZEL_VERSION="$(bazel version | grep "0.21.0")"
+    if [ $? -eq 1 ]; then
+	run_bazel_install
+	run_return_check BAZEL install
+    fi
+}
+
+run_cmake_check()
+{
+    CMAKE_VERSION="$(cmake --version | grep "3.13.4")"
+    if [ $? -eq 1 ]; then
+	run_cmake_install
+	run_return_check CMAKE install
+    fi
+}
+
 run_main()
 {
-    run_dependencies
-    run_return_check DEPENDENCIES
-    run_bazel_install
-    run_return_check BAZEL install
-    run_cmake_install
-    run_return_check CMAKE install
-    run_tensorflow_install
-    run_return_check TENSORFLOW install
+    # run_dependencies
+    # run_return_check DEPENDENCIES
+    run_bazel_check
+    run_cmake_check
+    # run_tensorflow_install
+    # run_return_check TENSORFLOW install    
 }
 
 run_main
