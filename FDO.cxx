@@ -1,23 +1,13 @@
-#include <benchmark/benchmark.h>
-
 #include <tensorflow/cc/client/client_session.h>
 #include <tensorflow/cc/ops/standard_ops.h>
 #include <tensorflow/core/framework/tensor.h>
 #include <tensorflow/cc/framework/ops.h>
 
 #include "TFVector.hxx"
-#include "TFConfig.hxx"
 #include "Sum.hxx"
-#include "Diff.hxx"
 #include "Scale.hxx"
-#include "Log.hxx"
-#include "Sqrt.hxx"
-#include "Prod.hxx"
-#include "Div.hxx"
-#include "NormalCDF.hxx"
-#include "Exp.hxx" 
 
-static void BM_VectorExpression_TensorFlow_CRTP(benchmark::State &state)
+int main()
 {
     int size = 50000;
     
@@ -40,10 +30,7 @@ static void BM_VectorExpression_TensorFlow_CRTP(benchmark::State &state)
     auto result = (c1 * fijk1 + c2 * fijk2 + c3 * fijk3 + c4 * fijk4)();
 
     std::vector<tensorflow::Tensor> output;
-
-    for (auto _ : state){
-	TF_CHECK_OK(session.Run({result}, &output));
-    }
+    TF_CHECK_OK(session.Run({result}, &output));
+	
+    return 0;
 }
-
-BENCHMARK(BM_VectorExpression_TensorFlow_CRTP);
